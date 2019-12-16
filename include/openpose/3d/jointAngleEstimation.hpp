@@ -8,7 +8,6 @@
 #ifdef USE_3D_ADAM_MODEL
     #include <adam/totalmodel.h>
 #endif
-#include <opencv2/core/core.hpp>
 #include <openpose/core/common.hpp>
 
 namespace op
@@ -21,6 +20,8 @@ namespace op
         static const std::shared_ptr<const TotalModel> getTotalModel();
 
         JointAngleEstimation(const bool returnJacobian);
+
+        virtual ~JointAngleEstimation();
 
         void initializationOnThread();
 

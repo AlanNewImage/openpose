@@ -1,4 +1,5 @@
 #ifdef USE_3D_ADAM_MODEL
+#include <openpose/gui/guiAdam.hpp>
 #ifdef USE_3D_ADAM_MODEL
     #include <adam/KinematicModel.h>
     #include <adam/Renderer.h>
@@ -8,7 +9,6 @@
 #endif
 #include <openpose/3d/jointAngleEstimation.hpp>
 #include <openpose/filestream/videoSaver.hpp>
-#include <openpose/gui/guiAdam.hpp>
 
 namespace op
 {
@@ -60,7 +60,7 @@ namespace op
             {
                 try
                 {
-                    // Security checks
+                    // Sanity check
                     if (spTotalModel == nullptr)
                         error("Given totalModel is a nullptr.", __LINE__, __FUNCTION__, __FILE__);
                 }
@@ -234,7 +234,7 @@ namespace op
                     spImpl->spRender->RenderAndRead(); // read the image into read_buffer
                     // spImpl->spRender->Display();
 
-                    // Save/display Adam display in opencv window
+                    // Save/display Adam display in OpenCV window
                     if (!spImpl->mWriteAdamRenderAsVideo.empty())
                     {
                         // img is y-flipped, and in RGB order
@@ -247,7 +247,7 @@ namespace op
                             const auto originalVideoFps = 30;
                             spImpl->spVideoSaver = std::make_shared<VideoSaver>(
                                 spImpl->mWriteAdamRenderAsVideo, CV_FOURCC('M','J','P','G'),
-                                originalVideoFps, Point<int>{img.cols, img.rows}
+                                originalVideoFps, ""
                             );
                         }
                         spImpl->spVideoSaver->write(img);
@@ -275,7 +275,7 @@ namespace op
     void GuiAdam::update()
     {
         try
-        {   
+        {
             // 2-D rendering
             if (mDisplayMode == DisplayMode::DisplayAll || mDisplayMode == DisplayMode::Display2D)
                 Gui::update();

@@ -19,10 +19,21 @@ namespace op
         // Completely customizable case
         explicit ThreadManager(const ThreadManagerMode threadManagerMode = ThreadManagerMode::Synchronous);
 
+        virtual ~ThreadManager();
+
+        /**
+         * It sets the maximum number of elements in the queue.
+         * For maximum speed, set to a very large number, but the trade-off would be:
+         *  - Latency will hugely increase.
+         *  - The program might go out of RAM memory (so the computer might freeze).
+         * For minimum latency while keeping an optimal speed, set to -1, that will automatically
+         * detect the ideal number based on how many elements are connected to that queue.
+         * @param defaultMaxSizeQueues long long element with the maximum number of elements on the queue.
+         */
         void setDefaultMaxSizeQueues(const long long defaultMaxSizeQueues = -1);
 
-        void add(const unsigned long long threadId, const std::vector<TWorker>& tWorkers, const unsigned long long queueInId,
-                 const unsigned long long queueOutId);
+        void add(const unsigned long long threadId, const std::vector<TWorker>& tWorkers,
+                 const unsigned long long queueInId, const unsigned long long queueOutId);
 
         void add(const unsigned long long threadId, const TWorker& tWorker, const unsigned long long queueInId,
                  const unsigned long long queueOutId);
@@ -102,6 +113,11 @@ namespace op
     }
 
     template<typename TDatums, typename TWorker, typename TQueue>
+    ThreadManager<TDatums, TWorker, TQueue>::~ThreadManager()
+    {
+    }
+
+    template<typename TDatums, typename TWorker, typename TQueue>
     void ThreadManager<TDatums, TWorker, TQueue>::setDefaultMaxSizeQueues(const long long defaultMaxSizeQueues)
     {
         try
@@ -166,12 +182,12 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             // Set threads
             multisetToThreads();
             if (!mThreads.empty())
             {
-                log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+                opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
                 // Start threads
                 for (auto i = 0u; i < mThreads.size() - 1; i++)
                     mThreads.at(i)->startInThread();
@@ -179,7 +195,7 @@ namespace op
                 // Stop threads - It will arrive here when the exec() command has finished
                 stop();
             }
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
         }
         catch (const std::exception& e)
         {
@@ -192,13 +208,13 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             // Set threads
             multisetToThreads();
             // Start threads
             for (auto& thread : mThreads)
                 thread->startInThread();
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
         }
         catch (const std::exception& e)
         {
@@ -211,14 +227,16 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             for (auto& tQueue : mTQueues)
                 tQueue->stop();
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             *spIsRunning = false;
             for (auto& thread : mThreads)
                 thread->stopAndJoin();
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            checkWorkerErrors();
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
         }
         catch (const std::exception& e)
         {
@@ -380,6 +398,9 @@ namespace op
         {
             if (!mThreadWorkerQueues.empty())
             {
+                // This avoids extra std::cout if errors occur on different threads
+                setMainThread();
+
                 // Check threads
                 checkAndCreateEmptyThreads();
 

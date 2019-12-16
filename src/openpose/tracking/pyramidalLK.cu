@@ -1,12 +1,15 @@
+#include <openpose_private/tracking/pyramidalLK.hpp>
 #ifdef WITH_TRACKING
     #include <iostream>
     #include <cuda.h>
     #include <cuda_runtime.h>
     #include <cuda_runtime_api.h>
     #include <opencv2/opencv.hpp>
+    // OpenCV 2.X
     #if (defined(CV_VERSION_EPOCH) && CV_VERSION_EPOCH == 2)
         #include <opencv2/gpu/gpu.hpp>
         #define cvCuda cv::gpu
+    // OpenCV > 2
     #else
         #include <opencv2/core/cuda.hpp>
         #include <opencv2/cudaimgproc.hpp>
@@ -14,7 +17,6 @@
         #define cvCuda cv::cuda
     #endif
 #endif
-#include <openpose/tracking/pyramidalLK.hpp>
 
 // Error codes for kernel caller
 #define IMAGE_SIZES_NEQUAL -1

@@ -1,6 +1,7 @@
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS C;M;c++;cc;cpp;cxx;mm;CPP;cl)
 set(SOURCES_OP_CORE
     array.cpp
+    arrayCpuGpu.cpp
     cvMatToOpInput.cpp
     cvMatToOpOutput.cpp
     datum.cpp
@@ -8,11 +9,14 @@ set(SOURCES_OP_CORE
     gpuRenderer.cpp
     keepTopNPeople.cpp
     keypointScaler.cpp
+    matrix.cpp
     opOutputToCvMat.cpp
     point.cpp
     rectangle.cpp
     renderer.cpp
-    scaleAndSizeExtractor.cpp)
+    scaleAndSizeExtractor.cpp
+    string.cpp
+    verbosePrinter.cpp)
 
 include(${CMAKE_SOURCE_DIR}/cmake/Utils.cmake)
 prepend(SOURCES_OP_CORE_WITH_CP ${CMAKE_CURRENT_SOURCE_DIR} ${SOURCES_OP_CORE})
@@ -34,7 +38,7 @@ if (UNIX OR APPLE)
   endif (APPLE)
 
   if (BUILD_CAFFE)
-    add_dependencies(openpose_core openpose_caffe)
+    add_dependencies(openpose_core openpose)
   endif (BUILD_CAFFE)
 
   install(TARGETS openpose_core

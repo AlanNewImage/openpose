@@ -13,6 +13,8 @@ namespace op
     public:
         explicit WHandExtractorNet(const std::shared_ptr<HandExtractorNet>& handExtractorNet);
 
+        virtual ~WHandExtractorNet();
+
         void initializationOnThread();
 
         void work(TDatums& tDatums);
@@ -39,6 +41,11 @@ namespace op
     }
 
     template<typename TDatums>
+    WHandExtractorNet<TDatums>::~WHandExtractorNet()
+    {
+    }
+
+    template<typename TDatums>
     void WHandExtractorNet<TDatums>::initializationOnThread()
     {
         spHandExtractorNet->initializationOnThread();
@@ -52,24 +59,24 @@ namespace op
             if (checkNoNullNorEmpty(tDatums))
             {
                 // Debugging log
-                dLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+                opLogIfDebug("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
                 // Profiling speed
                 const auto profilerKey = Profiler::timerInit(__LINE__, __FUNCTION__, __FILE__);
                 // Extract people hands
-                for (auto& tDatum : *tDatums)
+                for (auto& tDatumPtr : *tDatums)
                 {
-                    spHandExtractorNet->forwardPass(tDatum.handRectangles, tDatum.cvInputData);
+                    spHandExtractorNet->forwardPass(tDatumPtr->handRectangles, tDatumPtr->cvInputData);
                     for (auto hand = 0 ; hand < 2 ; hand++)
                     {
-                        tDatum.handHeatMaps[hand] = spHandExtractorNet->getHeatMaps()[hand].clone();
-                        tDatum.handKeypoints[hand] = spHandExtractorNet->getHandKeypoints()[hand].clone();
+                        tDatumPtr->handHeatMaps[hand] = spHandExtractorNet->getHeatMaps()[hand].clone();
+                        tDatumPtr->handKeypoints[hand] = spHandExtractorNet->getHandKeypoints()[hand].clone();
                     }
                 }
                 // Profiling speed
                 Profiler::timerEnd(profilerKey);
                 Profiler::printAveragedTimeMsOnIterationX(profilerKey, __LINE__, __FUNCTION__, __FILE__);
                 // Debugging log
-                dLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+                opLogIfDebug("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             }
         }
         catch (const std::exception& e)

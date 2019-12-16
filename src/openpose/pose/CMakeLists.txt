@@ -1,7 +1,4 @@
-set(SOURCES_OP_POSE 
-    bodyPartConnectorBase.cpp
-    bodyPartConnectorBase.cu
-    bodyPartConnectorCaffe.cpp
+set(SOURCES_OP_POSE
     defineTemplates.cpp
     poseCpuRenderer.cpp
     poseExtractor.cpp
@@ -27,9 +24,9 @@ if (UNIX OR APPLE)
   endif ()
 
   target_link_libraries(openpose_pose openpose_core)
-  
+
   if (BUILD_CAFFE)
-    add_dependencies(openpose_pose openpose_caffe)
+    add_dependencies(openpose_pose openpose)
   endif (BUILD_CAFFE)
 
   install(TARGETS openpose_pose

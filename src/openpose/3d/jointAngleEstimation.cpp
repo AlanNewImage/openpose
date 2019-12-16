@@ -1,9 +1,9 @@
 #ifdef USE_3D_ADAM_MODEL
+#include <openpose/3d/jointAngleEstimation.hpp>
 #ifdef USE_3D_ADAM_MODEL
     #include <adam/FitToBody.h>
     #include <adam/totalmodel.h>
 #endif
-#include <openpose/3d/jointAngleEstimation.hpp>
 
 namespace op
 {
@@ -203,6 +203,10 @@ namespace op
         }
     }
 
+    void JointAngleEstimation::~JointAngleEstimation()
+    {
+    }
+
     void JointAngleEstimation::initializationOnThread()
     {
     }
@@ -218,10 +222,9 @@ namespace op
     {
         try
         {
-            // Security checks
-            if (!poseKeypoints3D.empty() && poseKeypoints3D.getSize(1) != 19 && poseKeypoints3D.getSize(1) != 25
-                 && poseKeypoints3D.getSize(1) != 65)
-                error("Only working for BODY_19 or BODY_25/BODY_25_19 or BODY_65 (#parts = "
+            // Sanity check
+            if (!poseKeypoints3D.empty() && poseKeypoints3D.getSize(1) != 19 && poseKeypoints3D.getSize(1) != 25)
+                error("Only working for BODY_19 or BODY_25 (#parts = "
                       + std::to_string(poseKeypoints3D.getSize(2)) + ").",
                       __LINE__, __FUNCTION__, __FILE__);
             // Shorter naming

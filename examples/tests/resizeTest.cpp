@@ -1,14 +1,14 @@
 // ------------------------- OpenPose Resize Layer Testing -------------------------
 
+// Third-party dependencies
+#include <opencv2/opencv.hpp>
+// Command-line user interface
+#define OPENPOSE_FLAGS_DISABLE_POSE
+#include <openpose/flags.hpp>
+// OpenPose dependencies
 #include <openpose/headers.hpp>
+
 #ifdef USE_CUDA
-    #include <chrono> // `std::chrono::` functions and classes, e.g. std::chrono::milliseconds
-    // GFlags: DEFINE_bool, _int32, _int64, _uint64, _double, _string
-    #include <gflags/gflags.h>
-    // Allow Google Flags in Ubuntu 14
-    #ifndef GFLAGS_GFLAGS_H_
-    namespace gflags = google;
-    #endif
     #ifdef USE_CAFFE
         #include <caffe/net.hpp>
     #endif
@@ -17,7 +17,7 @@
 
     cv::Mat gpuResize(cv::Mat& img, const cv::Size& newSize)
     {
-        #ifdef USE_CUDA
+        #if defined USE_CAFFE && defined USE_CUDA
             // Upload to Source to GPU
             float* cpuPtr = &img.at<float>(0);
             float* gpuPtr;
@@ -51,6 +51,7 @@
             UNUSED(newSize);
             op::error("OpenPose must be compiled with the `USE_CAFFE` & `USE_CUDA` macro definitions in order to run"
                   " this functionality.", __LINE__, __FUNCTION__, __FILE__);
+            return cv::Mat();
         #endif
     }
 
@@ -78,7 +79,8 @@
         try
         {
             // logging_level
-            cv::Mat img = op::loadImage(FLAGS_image_path, CV_LOAD_IMAGE_GRAYSCALE);
+            op::Matrix opImg = op::loadImage(FLAGS_image_path, CV_LOAD_IMAGE_GRAYSCALE);
+            cv::Mat img = OP_OP2CVMAT(opImg);
             if(img.empty())
                 op::error("Could not open or find the image: " + FLAGS_image_path, __LINE__, __FUNCTION__, __FILE__);
             img.convertTo(img, CV_32FC1);
@@ -90,7 +92,7 @@
             cv::imshow("gpuImg", gpuImg);
             cv::imshow("cpuImg", cpuImg);
 
-            op::log("Done");
+            op::opLog("Done");
             cv::waitKey(0);
 
             return 0;

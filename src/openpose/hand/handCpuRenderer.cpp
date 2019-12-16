@@ -1,11 +1,15 @@
-#include <openpose/hand/renderHand.hpp>
 #include <openpose/hand/handCpuRenderer.hpp>
+#include <openpose/hand/renderHand.hpp>
 
 namespace op
 {
     HandCpuRenderer::HandCpuRenderer(const float renderThreshold, const float alphaKeypoint,
                                      const float alphaHeatMap) :
         Renderer{renderThreshold, alphaKeypoint, alphaHeatMap}
+    {
+    }
+
+    HandCpuRenderer::~HandCpuRenderer()
     {
     }
 

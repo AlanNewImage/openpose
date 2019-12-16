@@ -38,12 +38,13 @@ namespace op
     void PoseExtractor::forwardPass(const std::vector<Array<float>>& inputNetData,
                                     const Point<int>& inputDataSize,
                                     const std::vector<double>& scaleInputToNetInputs,
+                                    const Array<float>& poseNetOutput,
                                     const long long frameId)
     {
         try
         {
             if (mTracking < 1 || frameId % (mTracking+1) == 0)
-                spPoseExtractorNet->forwardPass(inputNetData, inputDataSize, scaleInputToNetInputs);
+                spPoseExtractorNet->forwardPass(inputNetData, inputDataSize, scaleInputToNetInputs, poseNetOutput);
             else
                 spPoseExtractorNet->clear();
         }
@@ -132,7 +133,7 @@ namespace op
         }
     }
 
-    Array<long long> PoseExtractor::extractIds(const Array<float>& poseKeypoints, const cv::Mat& cvMatInput,
+    Array<long long> PoseExtractor::extractIds(const Array<float>& poseKeypoints, const Matrix& cvMatInput,
                                                const unsigned long long imageViewIndex)
     {
         try
@@ -150,7 +151,7 @@ namespace op
     }
 
     Array<long long> PoseExtractor::extractIdsLockThread(const Array<float>& poseKeypoints,
-                                                         const cv::Mat& cvMatInput,
+                                                         const Matrix& cvMatInput,
                                                          const unsigned long long imageViewIndex,
                                                          const long long frameId)
     {
@@ -169,7 +170,7 @@ namespace op
     }
 
     void PoseExtractor::track(Array<float>& poseKeypoints, Array<long long>& poseIds,
-                              const cv::Mat& cvMatInput,
+                              const Matrix& cvMatInput,
                               const unsigned long long imageViewIndex)
     {
         try
@@ -180,7 +181,7 @@ namespace op
                 while (spPersonTrackers->size() <= imageViewIndex)
                     spPersonTrackers->emplace_back(std::make_shared<PersonTracker>(
                         (*spPersonTrackers)[0]->getMergeResults()));
-                // Security check
+                // Sanity check
                 if (!poseKeypoints.empty() && poseIds.empty() && mNumberPeopleMax != 1)
                     error(errorMessage, __LINE__, __FUNCTION__, __FILE__);
                 // Reset poseIds if keypoints is empty
@@ -200,7 +201,7 @@ namespace op
     }
 
     void PoseExtractor::trackLockThread(Array<float>& poseKeypoints, Array<long long>& poseIds,
-                                        const cv::Mat& cvMatInput,
+                                        const Matrix& cvMatInput,
                                         const unsigned long long imageViewIndex, const long long frameId)
     {
         try
@@ -211,7 +212,7 @@ namespace op
                 while (spPersonTrackers->size() <= imageViewIndex)
                     spPersonTrackers->emplace_back(std::make_shared<PersonTracker>(
                         (*spPersonTrackers)[0]->getMergeResults()));
-                // Security check
+                // Sanity check
                 if (!poseKeypoints.empty() && poseIds.empty() && mNumberPeopleMax != 1)
                     error(errorMessage, __LINE__, __FUNCTION__, __FILE__);
                 // Reset poseIds if keypoints is empty

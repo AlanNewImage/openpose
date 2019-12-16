@@ -110,9 +110,9 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             stop();
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
         }
         catch (const std::exception& e)
         {
@@ -302,7 +302,7 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             const std::lock_guard<std::mutex> lock{mMutex};
             mPopIsStopped = {true};
             mPushIsStopped = {true};
@@ -321,7 +321,7 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             const std::lock_guard<std::mutex> lock{mMutex};
             mPushers--;
             if (mPushers == 0)
@@ -343,7 +343,7 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             const std::lock_guard<std::mutex> lock{mMutex};
             mPoppers++;
             updateMaxPoppersPushers();
@@ -359,7 +359,7 @@ namespace op
     {
         try
         {
-            log("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
+            opLog("", Priority::Low, __LINE__, __FUNCTION__, __FILE__);
             const std::lock_guard<std::mutex> lock{mMutex};
             mPushers++;
             updateMaxPoppersPushers();
@@ -514,8 +514,11 @@ namespace op
         }
     }
 
-    extern template class QueueBase<DATUM_BASE, std::queue<DATUM_BASE>>;
-    extern template class QueueBase<DATUM_BASE, std::priority_queue<DATUM_BASE, std::vector<DATUM_BASE>, std::greater<DATUM_BASE>>>;
+    extern template class QueueBase<BASE_DATUMS_SH, std::queue<BASE_DATUMS_SH>>;
+    extern template class QueueBase<
+        BASE_DATUMS_SH,
+        std::priority_queue<BASE_DATUMS_SH, std::vector<BASE_DATUMS_SH>,
+        std::greater<BASE_DATUMS_SH>>>;
 }
 
 #endif // OPENPOSE_THREAD_QUEUE_BASE_HPP

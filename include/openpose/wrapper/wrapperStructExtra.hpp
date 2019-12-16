@@ -8,7 +8,7 @@ namespace op
     /**
      * WrapperStructExtra: Pose estimation and rendering configuration struct.
      * WrapperStructExtra allows the user to set up the pose estimation and rendering parameters that will be used for
-     * the OpenPose Wrapper class.
+     * the OpenPose WrapperT template and Wrapper class.
      */
     struct OP_API WrapperStructExtra
     {
@@ -22,7 +22,8 @@ namespace op
 
         /**
          * Minimum number of views required to reconstruct each keypoint.
-         * By default (-1), it will require all the cameras to see the keypoint in order to reconstruct it.
+         * By default (-1), it will require max(2, min(4, #cameras-1)) cameras to see the keypoint in order to
+         * reconstruct it.
          */
         int minViews3d;
 
@@ -50,9 +51,9 @@ namespace op
          * It has the recommended and default values we recommend for each element of the struct.
          * Since all the elements of the struct are public, they can also be manually filled.
          */
-        WrapperStructExtra(const bool reconstruct3d = false, const int minViews3d = -1,
-                           const bool identification = false, const int tracking = -1,
-                           const int ikThreads = 0);
+        WrapperStructExtra(
+            const bool reconstruct3d = false, const int minViews3d = -1, const bool identification = false,
+            const int tracking = -1, const int ikThreads = 0);
     };
 }
 

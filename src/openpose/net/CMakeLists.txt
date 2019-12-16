@@ -1,9 +1,14 @@
 set(CMAKE_CXX_SOURCE_FILE_EXTENSIONS C;M;c++;cc;cpp;cxx;mm;CPP;cl)
 set(SOURCES_OP_NET
+    bodyPartConnectorBase.cpp
+    bodyPartConnectorBase.cu
+    bodyPartConnectorBaseCL.cpp
+    bodyPartConnectorCaffe.cpp
     maximumBase.cpp
     maximumBase.cu
     maximumCaffe.cpp
     netCaffe.cpp
+    netOpenCv.cpp
     nmsBase.cpp
     nmsBase.cu
     nmsBaseCL.cpp
@@ -26,11 +31,11 @@ if (UNIX OR APPLE)
   endif ()
 
   add_library(caffe SHARED IMPORTED)
-  set_property(TARGET caffe PROPERTY IMPORTED_LOCATION ${Caffe_LIBS}) 
+  set_property(TARGET caffe PROPERTY IMPORTED_LOCATION ${Caffe_LIBS})
   target_link_libraries(openpose_net caffe ${MKL_LIBS} openpose_core)
 
   if (BUILD_CAFFE)
-    add_dependencies(openpose_net openpose_caffe)
+    add_dependencies(openpose_net openpose)
   endif (BUILD_CAFFE)
 
   install(TARGETS openpose_net

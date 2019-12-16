@@ -1,8 +1,8 @@
+#include <openpose_private/gpu/opencl.hcl> // Must be before below includes
 #include <map>
 #include <mutex>
-#include <openpose/gpu/opencl.hcl> // Must be before below includes
 #ifdef USE_OPENCL
-    #include <openpose/gpu/cl2.hpp>
+    #include <openpose_private/gpu/cl2.hpp>
     #include <viennacl/backend/opencl.hpp>
     #include <caffe/caffe.hpp>
 #endif
@@ -155,7 +155,7 @@ namespace op
                                         upImpl->mQueue = cl::CommandQueue(upImpl->mContext, upImpl->mDevice,
                                                                           CL_QUEUE_PROFILING_ENABLE);
                                         deviceFound = true;
-                                        log("Made new GPU Instance: " + std::to_string(deviceId));
+                                        opLog("Made new GPU Instance: " + std::to_string(deviceId));
                                         break;
                                     }
                                 }
@@ -186,7 +186,7 @@ namespace op
                                         upImpl->mQueue = cl::CommandQueue(upImpl->mContext, upImpl->mDevice,
                                                                           CL_QUEUE_PROFILING_ENABLE);
                                         deviceFound = true;
-                                        log("Made new CPU Instance: " + std::to_string(deviceId));
+                                        opLog("Made new CPU Instance: " + std::to_string(deviceId));
                                         break;
                                     }
                                 }
@@ -219,7 +219,7 @@ namespace op
                                         upImpl->mQueue = cl::CommandQueue(upImpl->mContext, upImpl->mDevice,
                                                                           CL_QUEUE_PROFILING_ENABLE);
                                         deviceFound = true;
-                                        log("Made new ACC Instance: " + std::to_string(deviceId));
+                                        opLog("Made new ACC Instance: " + std::to_string(deviceId));
                                         break;
                                     }
                                 }
@@ -240,7 +240,7 @@ namespace op
                 #if defined(USE_OPENCL) && defined(CL_HPP_ENABLE_EXCEPTIONS)
                 catch (cl::Error e)
                 {
-                    log("Error: " + std::string(e.what()));
+                    opLog("Error: " + std::string(e.what()));
                 }
                 #endif
                 catch (const std::exception& e)
@@ -316,13 +316,13 @@ namespace op
             if (!(upImpl->mClKernels.find(key) != upImpl->mClKernels.end()))
             {
                 upImpl->mClKernels[key] = cl::Kernel(program, kernelName.c_str());
-                log("Kernel: " + kernelName + " Type: " + type + + " GPU: " + std::to_string(upImpl->mId) +
+                opLog("Kernel: " + kernelName + " Type: " + type + + " GPU: " + std::to_string(upImpl->mId) +
                     " built successfully");
                 return true;
             }
             else
             {
-                log("Kernel " + kernelName + " already built");
+                opLog("Kernel " + kernelName + " already built");
                 return false;
             }
         #else
@@ -456,9 +456,18 @@ namespace op
                 cl::Platform::get(&platforms);
                 if (!platforms.size())
                     return -1;
+
+                // Special Case for Apple which has CPU OpenCL Device too
+                int cpu_device_count = 0;
+                #ifdef __APPLE__
+                    type = platforms[0].getDevices(CL_DEVICE_TYPE_CPU, &devices);
+                    if (type == CL_SUCCESS)
+                        cpu_device_count = devices.size();
+                #endif
+
                 type = platforms[0].getDevices(CL_DEVICE_TYPE_GPU, &devices);
                 if (type == CL_SUCCESS)
-                    return devices.size();
+                    return devices.size() + cpu_device_count;
                 else
                 {
                     error("No GPU Devices were found. OpenPose only supports GPU OpenCL", __LINE__, __FUNCTION__, __FILE__);
@@ -468,7 +477,7 @@ namespace op
             #if defined(USE_OPENCL) && defined(CL_HPP_ENABLE_EXCEPTIONS)
             catch (cl::Error& e)
             {
-                log("Error: " + std::string(e.what()));
+                opLog("Error: " + std::string(e.what()));
             }
             #endif
             catch (const std::exception& e)

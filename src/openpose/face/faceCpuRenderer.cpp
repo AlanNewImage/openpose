@@ -1,11 +1,15 @@
-#include <openpose/face/renderFace.hpp>
 #include <openpose/face/faceCpuRenderer.hpp>
+#include <openpose/face/renderFace.hpp>
 
 namespace op
 {
     FaceCpuRenderer::FaceCpuRenderer(const float renderThreshold, const float alphaKeypoint,
                                      const float alphaHeatMap) :
         Renderer{renderThreshold, alphaKeypoint, alphaHeatMap}
+    {
+    }
+
+    FaceCpuRenderer::~FaceCpuRenderer()
     {
     }
 
